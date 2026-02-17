@@ -1,0 +1,61 @@
+SOC Detection & Incident Response Lab Incident Report
+
+Report type
+Home Lab Incident Response (IR) Report 
+Date of incident
+02/08/2026 
+
+Systems in scope
+- Victim endpoint: Windows host (SOC-VICTIM)
+- SIEM: Splunk Server
+- Perimeter/containment: pfSense (quarantine alias + isolation rules)
+- Attacker: Kali Linux (simulated adversary)
+
+Executive summary
+A Windows host (SOC-VICTIM) was exposed via a Remote Desktop Protocol misconfiguration.. An attacker performed reconnaissance and attempted unauthorized access, then successfully brute-forced credentials and gained remote access. Post-access activity included creation of a new user and escalation of privileges (local Administrators group membership change). Splunk detected the suspicious activity using Sysmon and Windows Security telemetry. Blue Team triage correlated the privilege escalation alert with authentication evidence and Sysmon network connection data to confirm the intrusion path (from recon/scan to exposed RDP followed by brute force  access and privilege escalation). Containment was executed by isolating the victim host using pfSense quarantine controls. Recovery actions included reverting the victim to a known-good snapshot and implementing hardening controls (credential resets, closing RDP exposure, and account lockout policy). The lab concluded with proactive monitoring improvements (recon dashboard) and an automation-focused containment workflow (unauthorized RDP detection triggers alert/webhook/script leading to automatic isolation).
+
+Incident classification
+- Type: Unauthorized remote access via exposed RDP, followed by privilege escalation/persistence
+- Impact: compromise of a single Windows endpoint
+- Severity: High (remote access + admin privilege change)
+
+Timeline
+1) Recon: attacker identifies exposed RDP (3389).
+   Evidence: Screenshot 2026-02-08 113020
+2) Initial access activity: attacker brute-forces the vulnerable RDP instance.
+   Evidence: Screenshot 2026-02-08 113202
+3) Persistence/privilege: attacker creates a user and elevates privileges (Administrators membership change).
+   Evidence: Screenshot 2026-02-08 113624
+4) Detection: Splunk alert triggers on admin group membership change.
+   Evidence: Screenshot 2026-02-08 113746
+5) Triage: analyst begins investigation, notes the actor account was previously inactive/unexpected, pivots into logons and identifies a suspicious foreign source IP associated with brute-force and access to RDP-VICTIM.
+   Evidence: Screenshot 2026-02-08 121633, 122009, 123119, 123218
+6) Confirmation: analyst pivots to Sysmon EventCode=3 network connections tied to the suspicious source IP to support recon/scan activity leading to exposed RDP access.
+   Evidence: Screenshot 2026-02-08 124216
+   Updated case notes: Screenshot 2026-02-08 145942
+Response actions
+Containment
+- Isolated SOC-VICTIM using pfSense quarantine workflow (blocked outbound connectivity to stop further access/movement).
+  Evidence: Screenshot 2026-02-08 124624
+Recovery and hardening
+- Reverted SOC-VICTIM to a known-good snapshot.
+  Evidence: Screenshot 2026-02-08 124751
+- Reset credentials on affected host, closed the RDP exposure, implemented account lockout policy to reduce brute-force risk.
+  Evidence: Screenshot 2026-02-08 125233, 125250, 125336
+
+Post-incident improvements 
+Recon / pre-compromise dashboard 
+- Created a dashboard panel to detect scan behavior by counting unique destination ports (Sysmon EventCode=3).
+  Evidence: Screenshot 2026-02-08 125820
+
+Automation (alert-driven containment)
+- Created an unauthorized RDP alert (3389) that triggers a webhook/script to automatically isolate the host via pfSense quarantine.
+  Evidence: Screenshot 2026-02-08 143900
+
+Lessons learned 
+- Exposed RDP is a high-risk entry point; restrict/disable by default and allowlist trusted sources.
+- Privileged group membership changes are high-signal events and should trigger immediate triage.
+- Correlating alert context + logon evidence + Sysmon network telemetry produces a stronger, evidence-based conclusion.
+- Quarantine-by-alias in pfSense provides fast, repeatable containment.
+- Automation (alert, webhook/script, quarantine) reduces response time and demonstrates SOC workflow maturity.
+
