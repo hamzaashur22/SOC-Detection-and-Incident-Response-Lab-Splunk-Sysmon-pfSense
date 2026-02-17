@@ -83,7 +83,7 @@ This repository documents an end-to-end SOC workflow in a home lab. A Windows ho
     stats dc(DestinationPort) as unique_ports values(DestinationPort) as ports by SourceIp |
     sort -unique_ports
     ```
-14. Alert/Automation:  Created an alert that triggers a webhook once an unauthorized rdp connection is made. Webhook automatically isolates host. More details on webhook configuration here: [Alert setup](docs/setup.md)
+14. Alert/Automation:  Created an alert that triggers a webhook once an unauthorized rdp connection is made. Webhook automatically isolates host. More details on webhook configuration here: [Alert setup](docs/docs/setup.md)
 
  
 <img width="1553" height="627" alt="Screenshot 2026-02-08 143900" src="https://github.com/user-attachments/assets/ab7c3654-adf5-47fc-91a7-8dc55465a259" />  
