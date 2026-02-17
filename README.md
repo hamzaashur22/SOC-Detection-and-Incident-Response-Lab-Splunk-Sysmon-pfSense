@@ -98,7 +98,7 @@ host="SOC-VICTIM" index=sysmon EventCode=3 DestinationPort=3389
 
 
 15. Incident Response Report
-   [IR Report](docs/ir-report.md)
+   [IR Report](docs/docs/IR-Report)
 
 
 
